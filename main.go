@@ -1,20 +1,78 @@
 package main
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/jinzhu/gorm"
+	_ "github.com/jinzhu/gorm/dialects/sqlite"
+	"net/http"
 	"strconv"
 )
 
+type Person struct {
+	ID        uint
+	FirstName string
+	LastName  string
+}
+
+type User struct {
+	Username string
+	Nickname string
+}
+
+var db *gorm.DB
+
+func init() {
+	var err error
+	db, err = gorm.Open("sqlite3", "./gorm.db")
+	db, err = gorm.Open("sqlite3","./user.db")
+	if err != nil {
+		panic(err)
+	}
+}
+
+func gromPerson()  {
+	db.AutoMigrate(&Person{})
+	p1 := Person{FirstName:"Qinagyuan", LastName:"Shui"}
+	db.Create(&p1)
+}
+
+func gromUser(){
+	db.AutoMigrate(&User{})
+	u1 := User{Username:"username",Nickname:"nickname"}
+	db.Create(&u1)
+
+}
 func main() {
+	gromPerson()
+	gromUser()
 	router := gin.Default()
 	router.POST("/echo", postEcho)
 	router.POST("/calc/sum", postCalc)
+	router.GET("/db", GetProjects)
+	router.POST("/user/register",Postuser)
 	err := router.Run("0.0.0.0:8000")
 	if err != nil {
 		panic(err)
 	}
 }
 
+func GetProjects(con *gin.Context) {
+	var people []Person
+	if err := db.Find(&people).Error; err != nil {
+		con.AbortWithStatus(404)
+		fmt.Println(err)
+	} else{
+		con.JSON(200,people)
+	}
+
+}
+func Postuser(c *gin.Context){
+	c.JSON(200, gin.H{
+		"code": http.StatusCreated,
+		"massage": "Created success",
+	})
+}
 func postEcho(c *gin.Context) {
 	text1 := c.DefaultPostForm("content1", "")
 	text2 := c.DefaultPostForm("content2", "")
