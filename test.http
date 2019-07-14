@@ -5,6 +5,8 @@
 # * 'ptr' and 'ptrp' create a POST request with a simple or parameter-like body;
 # * 'mptr' and 'fptr' create a POST request to submit a form with a text or file field (multipart/form-data);
 
+# ptrp #
+
 POST http://localhost:8000/echo
 Content-Type: application/x-www-form-urlencoded
 
@@ -16,5 +18,22 @@ POST http://localhost:8000/calc/sum
 Content-Type: application/x-www-form-urlencoded
 
 a=6&b=8
+
+###
+
+POST http://localhost:8000/user/register
+Content-Type: application/x-www-form-urlencoded
+
+username=lucien&nickname=handsome
+
+###
+
+GET http://localhost:8000/
+Accept: application/json
+
+###
+
+GET http://localhost:8000/user/lucien
+Accept: application/json
 
 ###
