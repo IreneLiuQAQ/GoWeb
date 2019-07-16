@@ -46,19 +46,18 @@ func postUser(c *gin.Context) {
 	username := c.DefaultPostForm("username", "")
 	nickname := c.DefaultPostForm("nickname", "")
 	user1 := User{Username: username, Nickname: nickname}
-	db.Create(&user1)
 	var err error
-	var user User
-	var code int
-	if err = db.Where("`username` = ?", username).Find(&user).Error; err != nil {
-		code = http.StatusForbidden
+	if err = db.Create(&user1).Error; err != nil {
+		c.JSON(200, gin.H{
+			"code":    http.StatusForbidden,
+			"massage": "Created failure",
+		})
 	} else {
-		code = http.StatusCreated
+		c.JSON(200, gin.H{
+			"code":    http.StatusCreated,
+			"massage": "Created success",
+		})
 	}
-	c.JSON(200, gin.H{
-		"code":    code,
-		"massage": "Created success",
-	})
 }
 
 func getNickname(c *gin.Context) {
