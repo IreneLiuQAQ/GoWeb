@@ -9,8 +9,8 @@ import (
 )
 
 type User struct {
-	Username string `gorm:"primary_key"`
-	Nickname string
+	Username string `gorm:"primary_key" json:"username"`
+	Nickname string `json:"nickname"`
 }
 
 var db *gorm.DB
@@ -43,20 +43,25 @@ func main() {
 }
 
 func postUser(c *gin.Context) {
-	username := c.DefaultPostForm("username", "")
-	nickname := c.DefaultPostForm("nickname", "")
-	user1 := User{Username: username, Nickname: nickname}
+	var user User
 	var err error
-	if err = db.Create(&user1).Error; err != nil {
+	if err = c.ShouldBindJSON(&user); err != nil {
 		c.JSON(200, gin.H{
 			"code":    http.StatusForbidden,
-			"massage": "Created failure",
+			"message": err.Error(),
 		})
 	} else {
-		c.JSON(200, gin.H{
-			"code":    http.StatusCreated,
-			"massage": "Created success",
-		})
+		if err = db.Create(&user).Error; err != nil {
+			c.JSON(200, gin.H{
+				"code":    http.StatusForbidden,
+				"massage": err.Error(),
+			})
+		} else {
+			c.JSON(200, gin.H{
+				"code":    http.StatusCreated,
+				"massage": "Created success",
+			})
+		}
 	}
 }
 
